@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DigitalDetox — Prototipo navegable</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#0F1B2E;
+    --bezel:#0A1320;
+    --card:#182B47;
+    --card-2:#1F3756;
+    --green:#16B37E;
+    --teal:#1CC5A6;
+    --purple:#8B6CF6;
+    --pink:#FF6B8B;
+    --gray:#A1A7B3;
+    --text:#F4F6FA;
+    --text-dim:#8C99B8;
+    --r-lg:20px;
+    --r-md:14px;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family:'Poppins', sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:0 0 64px;
+  }
+  .page{ max-width:480px; margin:0 auto; display:flex; flex-direction:column; align-items:center; }
+
+  /* COVER */
+  .cover{
+    position:relative; width:100%; padding:48px 28px 36px;
+    overflow:hidden; text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+  }
+  .cover-deco{ position:absolute; inset:0; pointer-events:none; }
+  .cover-content{ position:relative; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .logo-circle{ width:64px; height:64px; }
+  .eyebrow{
+    font-size:12px; font-weight:600; letter-spacing:0.12em; color:var(--green);
+    margin:0; text-transform:uppercase;
+  }
+  .wordmark{
+    font-size:34px; font-weight:700; margin:0; line-height:1.1;
+  }
+  .wordmark span{ color:var(--green); }
+  .tagline{
+    font-size:14px; color:var(--text-dim); margin:0; line-height:1.6; max-width:320px;
+  }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:4px; }
+  .chip{
+    display:flex; align-items:center; gap:6px;
+    background:var(--card); border-radius:999px; padding:8px 14px;
+    font-size:12px; font-weight:500; color:var(--text);
+  }
+  .chip i{ font-size:15px; }
+  .instructions{
+    font-size:12px; color:var(--text-dim); margin:10px 0 0; max-width:300px; line-height:1.6;
+  }
+
+  /* PHONE */
+  .phone{ width:100%; max-width:380px; background:var(--bezel); border-radius:38px; padding:14px; }
+  .screen-area{
+    position:relative; background:var(--bg); border-radius:26px; overflow:hidden;
+    min-height:660px; border:1px solid rgba(255,255,255,0.05);
+  }
+  .status-bar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 22px 4px; font-size:13px; color:var(--text-dim);
+  }
+  .status-bar .icons{ display:flex; gap:6px; align-items:center; }
+
+  .screen{ padding:8px 18px 110px; display:none; flex-direction:column; gap:14px; animation:fadein .25s ease; }
+  .screen.active{ display:flex; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .screen-title{ font-size:20px; font-weight:600; margin:6px 0 0; }
+  .subtle{ font-size:12.5px; color:var(--text-dim); margin:0; }
+
+  .card{ background:var(--card); border-radius:var(--r-lg); padding:16px; }
+  .card-row{ display:flex; gap:12px; }
+  .icon-circle{
+    width:38px; height:38px; border-radius:12px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+  }
+
+  /* INICIO */
+  .greeting{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .greeting h2{ margin:0; font-size:19px; font-weight:600; }
+  .greeting .icons{ display:flex; gap:10px; color:var(--text-dim); font-size:18px; padding-top:4px; }
+
+  .gauge-wrap{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .gauge-wrap .gauge-label{ font-size:12px; color:var(--text-dim); margin:0; }
+  .gauge{ position:relative; width:170px; height:170px; }
+  .gauge svg{ transform:rotate(-90deg); }
+  .gauge .bg{ stroke:var(--card-2); fill:none; stroke-width:12; }
+  .gauge .fg{ fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset .8s ease, stroke .4s ease; }
+  .gauge-center{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .gauge-center .score{ font-size:38px; font-weight:700; line-height:1; }
+  .gauge-center .max{ font-size:12px; color:var(--text-dim); margin-top:2px; }
+  .gauge-status{ font-size:12.5px; font-weight:500; margin:2px 0 0; }
+
+  .bigstat{ font-size:24px; font-weight:700; margin:2px 0 10px; }
+  .barchart{ display:flex; align-items:flex-end; gap:4px; height:48px; }
+  .barchart .bar{ flex:1; background:var(--teal); border-radius:3px 3px 0 0; min-height:4px; transition:height .4s ease; }
+  .barchart .bar.now{ background:var(--green); }
+  .chart-labels{ display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--text-dim); }
+
+  .reward-card{ cursor:pointer; }
+  .reward-text{ flex:1; }
+  .reward-text .title{ font-size:14px; font-weight:600; margin:0 0 2px; }
+  .reward-text .sub{ font-size:12px; color:var(--text-dim); margin:0; }
+  .reward-chevron{ display:flex; align-items:center; color:var(--text-dim); font-size:18px; }
+  .progress-bar{ height:6px; border-radius:999px; background:var(--card-2); overflow:hidden; margin-top:10px; }
+  .progress-fill{ height:100%; background:var(--green); border-radius:999px; transition:width .4s ease; width:0%; }
+
+  .pill{
+    display:flex; align-items:center; gap:12px; border-radius:var(--r-lg); padding:14px 16px; cursor:pointer;
+  }
+  .pill .pill-text{ flex:1; }
+  .pill .pill-text .title{ font-size:14px; font-weight:600; margin:0; }
+  .pill .pill-text .sub{ font-size:11.5px; margin:2px 0 0; }
+
+  /* DESAFIOS */
+  .section-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px; }
+  .section-head h3{ font-size:15px; font-weight:600; margin:0; }
+  .habit-list{ display:flex; flex-direction:column; gap:8px; }
+  .habit-item{
+    display:flex; align-items:center; gap:12px; background:var(--card); border-radius:var(--r-md); padding:12px 14px;
+    cursor:pointer; transition:background .2s ease;
+  }
+  .habit-item.done{ background:var(--card-2); }
+  .habit-check{
+    width:24px; height:24px; border-radius:8px; border:1.5px solid var(--text-dim);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px; transition:all .2s ease;
+  }
+  .habit-item.done .habit-check{ background:var(--green); border-color:var(--green); color:#0E2A1C; }
+  .habit-item .name{ font-size:13.5px; font-weight:500; }
+  .habit-item .reward{ font-size:11.5px; color:var(--text-dim); margin-top:1px; }
+
+  .challenge-card{ display:flex; flex-direction:column; gap:10px; }
+  .challenge-head{ display:flex; align-items:center; gap:12px; }
+  .challenge-head .title{ font-size:14px; font-weight:600; margin:0; }
+  .challenge-head .sub{ font-size:11.5px; color:var(--text-dim); margin:2px 0 0; }
+  .challenge-progress{ height:6px; border-radius:999px; background:var(--card-2); overflow:hidden; }
+  .challenge-progress .fill{ height:100%; border-radius:999px; }
+
+  /* FOCO */
+  .timer-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; padding:6px 0; }
+  .timer-ring{ position:relative; width:200px; height:200px; }
+  .timer-ring svg{ transform:rotate(-90deg); }
+  .timer-ring .bg{ stroke:var(--card-2); fill:none; stroke-width:10; }
+  .timer-ring .fg{ stroke:url(#gaugeGrad); fill:none; stroke-width:10; stroke-linecap:round; transition:stroke-dashoffset 1s linear; }
+  .timer-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .timer-center .time{ font-size:36px; font-weight:700; }
+  .timer-center .task{ font-size:12px; color:var(--text-dim); margin-top:4px; max-width:140px; text-align:center; }
+
+  .btn{
+    border:none; border-radius:var(--r-md); padding:13px; font-family:'Poppins'; font-weight:600; font-size:13.5px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .15s ease, opacity .15s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn-row{ display:flex; gap:10px; width:100%; }
+  .btn-row .btn{ flex:1; }
+  .btn-primary{ background:var(--green); color:#0E2A1C; }
+  .btn-ghost{ background:var(--card); color:var(--text); }
+  .btn-pink{ background:var(--pink); color:#3A0F18; }
+  .btn-pink-outline{ background:transparent; border:1.5px solid var(--pink); color:var(--pink); }
+
+  /* ESTADISTICAS */
+  .stat-bars{ display:flex; flex-direction:column; gap:10px; }
+  .stat-bar-row{ display:flex; align-items:center; gap:10px; }
+  .stat-bar-row .dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .stat-bar-row .label{ font-size:12.5px; flex:1; }
+  .stat-bar-row .val{ font-size:12.5px; color:var(--text-dim); font-weight:500; }
+  .stat-track{ height:6px; border-radius:999px; background:var(--card-2); overflow:hidden; margin-top:4px; }
+  .stat-fill{ height:100%; border-radius:999px; }
+
+  .week-chart{ display:flex; align-items:flex-end; gap:6px; height:70px; }
+  .week-chart .bar{ flex:1; background:var(--teal); border-radius:4px 4px 0 0; min-height:6px; transition:height .4s ease; }
+  .week-chart .bar.today{ background:var(--green); }
+  .week-labels{ display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--text-dim); }
+
+  .streak-row{ display:flex; align-items:center; gap:12px; }
+  .streak-row .num{ font-size:26px; font-weight:700; }
+
+  /* PERFIL */
+  .profile-head{ display:flex; align-items:center; gap:14px; }
+  .avatar{
+    width:56px; height:56px; border-radius:50%; background:var(--card-2);
+    display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:600; color:var(--green);
+  }
+  .profile-head .name{ font-size:17px; font-weight:600; margin:0; }
+  .profile-head .level{ font-size:12px; color:var(--green); margin:2px 0 0; font-weight:500; }
+
+  .level-card .level-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .level-card .level-head .leaf{
+    width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    background:var(--card-2);
+  }
+  .level-card .level-name{ font-size:14px; font-weight:600; }
+  .level-card .level-next{ font-size:11.5px; color:var(--text-dim); }
+
+  .profile-stats{ display:flex; gap:10px; }
+  .profile-stats .stat{ flex:1; background:var(--card); border-radius:var(--r-md); padding:12px; text-align:center; }
+  .profile-stats .stat .num{ font-size:18px; font-weight:700; }
+  .profile-stats .stat .lab{ font-size:10.5px; color:var(--text-dim); margin-top:2px; }
+
+  .settings-list{ display:flex; flex-direction:column; gap:6px; }
+  .settings-item{
+    display:flex; align-items:center; gap:12px; padding:12px 4px; font-size:13.5px; color:var(--text);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .settings-item i:first-child{ font-size:18px; color:var(--text-dim); }
+  .settings-item span{ flex:1; }
+  .settings-item .chev{ color:var(--text-dim); font-size:16px; }
+
+  /* SHEETS */
+  .sheet-backdrop{
+    position:absolute; inset:0; background:rgba(0,0,0,0.5); opacity:0; pointer-events:none;
+    transition:opacity .25s ease; z-index:30;
+  }
+  .sheet-backdrop.open{ opacity:1; pointer-events:auto; }
+  .sheet{
+    position:absolute; left:0; right:0; bottom:0; background:var(--card);
+    border-radius:24px 24px 0 0; padding:20px 20px 28px;
+    transform:translateY(100%); transition:transform .3s ease; z-index:31;
+    display:flex; flex-direction:column; gap:14px; max-height:88%; overflow-y:auto;
+  }
+  .sheet.open{ transform:translateY(0); }
+  .sheet-head{ display:flex; justify-content:space-between; align-items:center; }
+  .sheet-head h3{ font-size:17px; font-weight:600; margin:0; }
+  .sheet-close{ background:var(--card-2); border:none; border-radius:50%; width:32px; height:32px; color:var(--text); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  .app-grid{ display:flex; gap:12px; justify-content:center; }
+  .app-icon{
+    width:50px; height:50px; border-radius:14px; background:var(--card-2);
+    display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--text);
+  }
+  .lock-state{ display:flex; flex-direction:column; align-items:center; gap:8px; padding:6px 0; text-align:center; }
+  .lock-state .lock-icon{
+    width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px;
+  }
+  .lock-state.locked .lock-icon{ background:var(--card-2); color:var(--text-dim); }
+  .lock-state.unlocked .lock-icon{ background:var(--green); color:#0E2A1C; }
+  .lock-state .big-time{ font-size:26px; font-weight:700; }
+  .lock-state .status-text{ font-size:12px; color:var(--text-dim); }
+
+  .panic-ring{
+    width:120px; height:120px; border-radius:50%; border:5px solid var(--pink); margin:4px auto;
+    display:flex; align-items:center; justify-content:center; font-size:42px; color:var(--pink); transition:all .2s ease;
+  }
+  .panic-ring.active{ background:var(--pink); color:#3A0F18; }
+  .duration-row{ display:flex; gap:8px; }
+  .duration-row .btn{ font-size:12.5px; padding:11px; }
+  .duration-row .btn.selected{ background:var(--pink); color:#3A0F18; }
+
+  /* TOAST */
+  .toast{
+    position:absolute; left:18px; right:18px; bottom:96px; background:var(--green); color:#0E2A1C;
+    border-radius:14px; padding:12px 16px; font-size:12.5px; font-weight:600;
+    transform:translateY(20px); opacity:0; transition:all .3s ease; pointer-events:none; z-index:40;
+    display:flex; align-items:center; gap:10px;
+  }
+  .toast.show{ transform:translateY(0); opacity:1; }
+
+  /* NAVBAR */
+  .navbar{
+    position:absolute; bottom:0; left:0; right:0; background:rgba(10,19,32,0.92); backdrop-filter:blur(6px);
+    display:flex; justify-content:space-around; align-items:center; padding:10px 6px 16px;
+    border-top:1px solid rgba(255,255,255,0.05); z-index:20;
+  }
+  .navitem{
+    background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px;
+    color:var(--text-dim); font-size:10.5px; font-weight:500; padding:4px 8px; border-radius:10px;
+  }
+  .navitem i{ font-size:20px; }
+  .navitem.active{ color:var(--text); }
+  .navitem.active i{ color:var(--green); }
+  .fab{
+    width:54px; height:54px; border-radius:50%; background:var(--green); border:4px solid var(--bg);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:-26px;
+    transition:transform .15s ease;
+  }
+  .fab:active{ transform:scale(0.94); }
+  .fab.active{ background:var(--teal); }
+  .fab svg{ width:24px; height:24px; }
+
+  .reset-row{ text-align:center; margin-top:18px; }
+  .reset-row button{
+    background:none; border:1px solid rgba(255,255,255,0.15); color:var(--text-dim);
+    border-radius:999px; padding:8px 18px; font-size:12px; font-family:'Poppins'; cursor:pointer;
+  }
+
+  /* MOBILE: feels like a real app, not a mockup on a page */
+  @media (max-width: 600px){
+    body{ padding:0; }
+    .page{ height:100vh; height:100dvh; max-width:100%; display:flex; flex-direction:column; }
+
+    .cover{ flex-shrink:0; flex-direction:row; align-items:center; justify-content:flex-start; gap:10px; padding:12px 16px; text-align:left; }
+    .cover-deco, .eyebrow, .tagline, .chips, .instructions{ display:none; }
+    .cover-content{ flex-direction:row; align-items:center; gap:10px; }
+    .logo-circle{ width:32px; height:32px; }
+    .wordmark{ font-size:18px; }
+
+    .phone{ flex:1; min-height:0; max-width:100%; padding:0; background:transparent; display:flex; }
+    .screen-area{ flex:1; min-height:0; border-radius:0; border:none; }
+    .status-bar{ display:none; }
+
+    .screen.active{ position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+    .reset-row{ position:fixed; top:10px; right:10px; margin:0; z-index:50; }
+    .reset-row button{ background:rgba(10,19,32,0.75); backdrop-filter:blur(6px); border-color:rgba(255,255,255,0.2); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <section class="cover">
+    <div class="cover-deco">
+      <svg width="100%" height="100%" viewBox="0 0 480 320" preserveAspectRatio="xMidYMid slice">
+        <circle cx="380" cy="60" r="170" fill="none" stroke="#16B37E" stroke-width="2" opacity="0.08"/>
+        <path d="M380 60 C320 20, 250 40, 260 110 C310 130, 380 110, 380 60 Z" fill="#16B37E" opacity="0.05"/>
+        <path d="M380 60 C440 20, 480 50, 470 110 C420 130, 380 110, 380 60 Z" fill="#1CC5A6" opacity="0.05"/>
+      </svg>
+    </div>
+    <div class="cover-content">
+      <svg class="logo-circle" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="19" fill="none" stroke="#16B37E" stroke-width="2.5"/>
+        <path d="M24 32 L24 16" stroke="#16B37E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 24 C16 22, 13 27, 16 33 C20 33, 24 30, 24 24 Z" fill="#16B37E"/>
+        <path d="M24 22 C32 20, 35 25, 32 31 C28 31, 24 28, 24 22 Z" fill="#1CC5A6"/>
+      </svg>
+      <p class="eyebrow">Bienestar digital</p>
+      <h1 class="wordmark">Digital<span>Detox</span></h1>
+      <p class="tagline">La app que convierte tu productividad en tiempo de ocio. Primero recargás, después consumís.</p>
+      <div class="chips">
+        <span class="chip"><i class="ti ti-brain" style="color:var(--pink)"></i> Brain Rot Score</span>
+        <span class="chip"><i class="ti ti-trophy" style="color:var(--purple)"></i> Gamificación</span>
+        <span class="chip"><i class="ti ti-bell-ringing" style="color:var(--pink)"></i> Panic Button</span>
+        <span class="chip"><i class="ti ti-chart-bar" style="color:var(--gray)"></i> Analytics</span>
+      </div>
+      <p class="instructions">Prototipo navegable del MVP. Recorré las 5 secciones desde la barra inferior — el botón verde central abre el Focus Timer. Demo acelerada: 1 segundo real = 1 minuto simulado.</p>
+    </div>
+  </section>
+
+  <div class="phone">
+    <div class="screen-area">
+
+      <div class="status-bar">
+        <span>09:41</span>
+        <div class="icons"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+      </div>
+
+      <!-- INICIO -->
+      <div class="screen active" id="screen-inicio">
+        <div class="greeting">
+          <div>
+            <h2>Hola, Alex 👋</h2>
+            <p class="subtle">Estás haciendo un gran trabajo ✨</p>
+          </div>
+          <div class="icons"><i class="ti ti-bell"></i><i class="ti ti-calendar"></i></div>
+        </div>
+
+        <div class="card gauge-wrap">
+          <p class="gauge-label">Brain Rot Score</p>
+          <div class="gauge">
+            <svg width="170" height="170" viewBox="0 0 170 170">
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#1CC5A6"/>
+                  <stop offset="100%" stop-color="#16B37E"/>
+                </linearGradient>
+              </defs>
+              <circle class="bg" cx="85" cy="85" r="73"/>
+              <circle class="fg" id="gauge-ring" cx="85" cy="85" r="73" stroke="url(#gaugeGrad)" stroke-dasharray="459" stroke-dashoffset="266"/>
+            </svg>
+            <div class="gauge-center">
+              <div class="score" id="score-val">42</div>
+              <div class="max">/ 100</div>
+            </div>
+          </div>
+          <p class="gauge-status" id="gauge-status" style="color:var(--teal)">Estás en modo enfoque</p>
+        </div>
+
+        <div class="card">
+          <p class="gauge-label">Tiempo ganado hoy</p>
+          <div class="bigstat" id="time-earned-big">0m</div>
+          <div class="barchart" id="home-barchart"></div>
+          <div class="chart-labels"><span>00:00</span><span>12:00</span><span>24:00</span></div>
+        </div>
+
+        <div class="card reward-card" id="reward-card">
+          <div class="card-row" style="align-items:center;">
+            <div class="icon-circle" style="background:var(--card-2); color:var(--green);"><i class="ti ti-gift"></i></div>
+            <div class="reward-text">
+              <p class="title" id="reward-title">45 min de ocio digital</p>
+              <p class="sub" id="reward-sub">Faltan 25 min de actividad</p>
+            </div>
+            <div class="reward-chevron"><i class="ti ti-chevron-right"></i></div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="reward-progress"></div></div>
+        </div>
+
+        <div class="pill" id="panic-pill-home" style="background:rgba(255,107,139,0.12);">
+          <div class="icon-circle" style="background:rgba(255,107,139,0.18); color:var(--pink);"><i class="ti ti-alert-triangle"></i></div>
+          <div class="pill-text">
+            <p class="title" style="color:var(--pink);">Panic Button</p>
+            <p class="sub" style="color:var(--text-dim);">Bloqueo de emergencia inmediato</p>
+          </div>
+          <i class="ti ti-chevron-right" style="color:var(--pink)"></i>
+        </div>
+      </div>
+
+      <!-- DESAFIOS -->
+      <div class="screen" id="screen-desafios">
+        <h2 class="screen-title">Desafíos</h2>
+        <p class="subtle" id="habits-progress-text">0 / 4 hábitos completados hoy</p>
+
+        <div class="habit-list" id="habit-list"></div>
+
+        <div class="section-head" style="margin-top:6px;">
+          <h3>Retos activos</h3>
+        </div>
+
+        <div class="card challenge-card">
+          <div class="challenge-head">
+            <div class="icon-circle" style="background:rgba(139,108,246,0.15); color:var(--purple);"><i class="ti ti-flame"></i></div>
+            <div>
+              <p class="title">Detox digital · 7 días</p>
+              <p class="sub">Día 3 de 7 — sin scroll antes de dormir</p>
+            </div>
+          </div>
+          <div class="challenge-progress"><div class="fill" style="width:43%; background:var(--purple);"></div></div>
+        </div>
+
+        <div class="card challenge-card">
+          <div class="challenge-head">
+            <div class="icon-circle" style="background:rgba(28,197,166,0.15); color:var(--teal);"><i class="ti ti-users"></i></div>
+            <div>
+              <p class="title">Reto grupal</p>
+              <p class="sub">Sin redes después de las 22h · 4 amigos</p>
+            </div>
+          </div>
+          <div class="challenge-progress"><div class="fill" style="width:60%; background:var(--teal);"></div></div>
+          <button class="btn btn-ghost" id="checkin-challenge"><i class="ti ti-check"></i> Marcar check-in de hoy</button>
+        </div>
+      </div>
+
+      <!-- FOCO -->
+      <div class="screen" id="screen-foco">
+        <h2 class="screen-title">Sesión de enfoque</h2>
+        <p class="subtle">Concentrate: Estudiando Historia</p>
+
+        <div class="timer-wrap">
+          <div class="timer-ring">
+            <svg width="200" height="200" viewBox="0 0 200 200">
+              <circle class="bg" cx="100" cy="100" r="88"/>
+              <circle class="fg" id="focus-ring" cx="100" cy="100" r="88" stroke-dasharray="553" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-center">
+              <div class="time" id="focus-time">25:00</div>
+              <div class="task">Sesión Pomodoro</div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="focus-start"><i class="ti ti-player-play"></i> Iniciar</button>
+            <button class="btn btn-ghost" id="focus-reset"><i class="ti ti-arrow-back-up"></i> Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="subtle">Al completar la sesión ganás <b style="color:var(--green)">+15 min</b> de ocio digital y tu Brain Rot Score mejora.</p>
+        </div>
+      </div>
+
+      <!-- ESTADISTICAS -->
+      <div class="screen" id="screen-estadisticas">
+        <h2 class="screen-title">Estadísticas</h2>
+
+        <div class="card">
+          <p class="gauge-label">Tiempo en pantalla hoy</p>
+          <div class="bigstat">4h 15m</div>
+          <div class="stat-bars">
+            <div>
+              <div class="stat-bar-row"><span class="dot" style="background:var(--pink);"></span><span class="label">Redes sociales</span><span class="val">1h 45m</span></div>
+              <div class="stat-track"><div class="stat-fill" style="width:41%; background:var(--pink);"></div></div>
+            </div>
+            <div>
+              <div class="stat-bar-row"><span class="dot" style="background:var(--purple);"></span><span class="label">Videos</span><span class="val">50m</span></div>
+              <div class="stat-track"><div class="stat-fill" style="width:20%; background:var(--purple);"></div></div>
+            </div>
+            <div>
+              <div class="stat-bar-row"><span class="dot" style="background:var(--gray);"></span><span class="label">Juegos</span><span class="val">30m</span></div>
+              <div class="stat-track"><div class="stat-fill" style="width:12%; background:var(--gray);"></div></div>
+            </div>
+            <div>
+              <div class="stat-bar-row"><span class="dot" style="background:var(--green);"></span><span class="label">Productividad</span><span class="val" id="stat-prod-val">0m</span></div>
+              <div class="stat-track"><div class="stat-fill" id="stat-prod-fill" style="width:0%; background:var(--green);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="gauge-label">Progreso semanal</p>
+          <div class="week-chart" id="week-chart"></div>
+          <div class="week-labels"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        </div>
+
+        <div class="card streak-row">
+          <div class="icon-circle" style="background:rgba(242,193,78,0.15); color:#F2C14E; font-size:22px;"><i class="ti ti-flame"></i></div>
+          <div>
+            <div class="num">22 días</div>
+            <p class="subtle">Racha activa</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERFIL -->
+      <div class="screen" id="screen-perfil">
+        <h2 class="screen-title">Perfil</h2>
+
+        <div class="card profile-head">
+          <div class="avatar">A</div>
+          <div>
+            <p class="name">Alex</p>
+            <p class="level" id="profile-level">Nivel: Semilla</p>
+          </div>
+        </div>
+
+        <div class="card level-card">
+          <div class="level-head">
+            <div class="card-row" style="align-items:center; gap:10px;">
+              <div class="leaf">
+                <svg width="22" height="22" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="19" fill="none" stroke="#16B37E" stroke-width="3"/>
+                  <path d="M24 32 L24 16" stroke="#16B37E" stroke-width="3" stroke-linecap="round" fill="none"/>
+                  <path d="M24 24 C16 22, 13 27, 16 33 C20 33, 24 30, 24 24 Z" fill="#16B37E"/>
+                  <path d="M24 22 C32 20, 35 25, 32 31 C28 31, 24 28, 24 22 Z" fill="#1CC5A6"/>
+                </svg>
+              </div>
+              <span class="level-name" id="level-name">Semilla</span>
+            </div>
+            <span class="level-next" id="level-next">15 min para Brote</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="level-progress" style="background:var(--teal);"></div></div>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat"><div class="num" id="stat-streak">22</div><div class="lab">Días de racha</div></div>
+          <div class="stat"><div class="num" id="stat-sessions">0</div><div class="lab">Sesiones de foco</div></div>
+          <div class="stat"><div class="num" id="stat-score">42</div><div class="lab">Brain Rot Score</div></div>
+        </div>
+
+        <div class="settings-list">
+          <div class="settings-item"><i class="ti ti-bell"></i><span>Notificaciones</span><i class="ti ti-chevron-right chev"></i></div>
+          <div class="settings-item"><i class="ti ti-shield-lock"></i><span>Privacidad y datos</span><i class="ti ti-chevron-right chev"></i></div>
+          <div class="settings-item"><i class="ti ti-users"></i><span>Comunidad</span><i class="ti ti-chevron-right chev"></i></div>
+          <div class="settings-item"><i class="ti ti-logout"></i><span>Cerrar sesión</span><i class="ti ti-chevron-right chev"></i></div>
+        </div>
+      </div>
+
+      <!-- REWARD SHEET -->
+      <div class="sheet-backdrop" id="reward-backdrop"></div>
+      <div class="sheet" id="reward-sheet">
+        <div class="sheet-head">
+          <h3>Tiempo de ocio digital</h3>
+          <button class="sheet-close" id="reward-close"><i class="ti ti-x"></i></button>
+        </div>
+
+        <div class="card" id="reward-claim-card" style="display:none;">
+          <div class="card-row" style="align-items:center;">
+            <div class="icon-circle" style="background:rgba(22,179,126,0.15); color:var(--green); font-size:22px;"><i class="ti ti-confetti"></i></div>
+            <div class="reward-text">
+              <p class="title">¡Felicitaciones!</p>
+              <p class="sub">Ganaste <b id="reward-claim-amount">45</b> min de ocio digital</p>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="reward-claim-btn" style="margin-top:10px;"><i class="ti ti-gift"></i> Reclamar recompensa</button>
+        </div>
+
+        <div class="card" id="reward-progress-card">
+          <p class="gauge-label">Progreso hacia tu próxima recompensa</p>
+          <div class="reward-text" style="margin:6px 0;">
+            <p class="sub" id="sheet-progress-text">Faltan 25 min de actividad productiva</p>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="sheet-reward-progress"></div></div>
+        </div>
+
+        <div class="app-grid">
+          <div class="app-icon"><i class="ti ti-brand-instagram"></i></div>
+          <div class="app-icon"><i class="ti ti-brand-tiktok"></i></div>
+          <div class="app-icon"><i class="ti ti-brand-youtube"></i></div>
+          <div class="app-icon"><i class="ti ti-brand-whatsapp"></i></div>
+        </div>
+
+        <div class="card">
+          <div class="lock-state locked" id="social-lockstate">
+            <div class="lock-icon" id="social-lock-icon"><i class="ti ti-lock"></i></div>
+            <div class="big-time" id="social-time">00:00</div>
+            <div class="status-text" id="social-status">Sin tiempo disponible todavía</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="social-activate"><i class="ti ti-bolt"></i> Activar tiempo en redes</button>
+      </div>
+
+      <!-- PANIC SHEET -->
+      <div class="sheet-backdrop" id="panic-backdrop"></div>
+      <div class="sheet" id="panic-sheet">
+        <div class="sheet-head">
+          <h3>Panic Button</h3>
+          <button class="sheet-close" id="panic-close"><i class="ti ti-x"></i></button>
+        </div>
+        <p class="subtle" style="text-align:center;">Para esos momentos de pérdida de autocontrol</p>
+
+        <div class="panic-ring" id="panic-ring"><i class="ti ti-alert-triangle" id="panic-icon"></i></div>
+        <div style="text-align:center; font-size:26px; font-weight:700;" id="panic-time">00:00</div>
+
+        <p class="subtle" style="text-align:center;">Elegí la duración del bloqueo</p>
+        <div class="duration-row" id="panic-durations">
+          <button class="btn btn-ghost" data-min="15">15 min</button>
+          <button class="btn btn-ghost selected" data-min="30">30 min</button>
+          <button class="btn btn-ghost" data-min="60">1 hora</button>
+        </div>
+
+        <button class="btn btn-pink" id="panic-activate"><i class="ti ti-shield-lock"></i> Activar bloqueo total</button>
+        <button class="btn btn-pink-outline" id="panic-cancel" style="display:none;"><i class="ti ti-x"></i> Cancelar bloqueo</button>
+      </div>
+
+      <div class="toast" id="toast"></div>
+
+      <div class="navbar">
+        <button class="navitem active" data-screen="inicio"><i class="ti ti-home"></i><span>Inicio</span></button>
+        <button class="navitem" data-screen="desafios"><i class="ti ti-target"></i><span>Desafíos</span></button>
+        <button class="fab" id="fab-foco">
+          <svg viewBox="0 0 48 48">
+            <path d="M24 34 L24 16" stroke="#0E2A1C" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <path d="M24 26 C16 24, 13 29, 16 35 C20 35, 24 32, 24 26 Z" fill="#0E2A1C"/>
+            <path d="M24 24 C32 22, 35 27, 32 33 C28 33, 24 30, 24 24 Z" fill="#0E2A1C"/>
+          </svg>
+        </button>
+        <button class="navitem" data-screen="estadisticas"><i class="ti ti-chart-bar"></i><span>Stats</span></button>
+        <button class="navitem" data-screen="perfil"><i class="ti ti-user"></i><span>Perfil</span></button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="reset-row"><button id="reset-demo">Reiniciar demo</button></div>
+</div>
+
+<script>
+  const state = {
+    score: 42,
+    totalEarned: 0,
+    progressEarned: 0,
+    rewardThreshold: 25,
+    rewardMinutes: 45,
+    socialAvailable: 0,
+    socialUnlocked: false,
+    socialRemaining: 0,
+    socialInterval: null,
+    sessionsCount: 0,
+    habits: [
+      { id:'leer', label:'Leer 20 minutos', reward:5, done:false },
+      { id:'gym', label:'Hacer ejercicio', reward:5, done:false },
+      { id:'sleep', label:'Dormir 8 horas', reward:5, done:false },
+      { id:'meditate', label:'Meditar 10 minutos', reward:5, done:false },
+    ],
+    challengeCheckedIn: false,
+    focus: { running:false, remaining:25, total:25, interval:null },
+    panic: { active:false, remaining:0, duration:30, interval:null },
+  };
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+  const homeBarsBase = [8,14,10,18,26,34,40,30,22,16,12,0];
+  const weekBase = [22,30,18,35,28,15,0];
+
+  function fmtMin(min){
+    const h = Math.floor(min/60), m = min%60;
+    return h > 0 ? (h + 'h ' + m + 'm') : (m + 'm');
+  }
+  function fmtClock(min){ return String(min).padStart(2,'0') + ':00'; }
+
+  function showToast(msg){
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._to);
+    t._to = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function gaugeColorAndStatus(score){
+    if (score <= 30) return { stroke:null, status:'Modo enfoque profundo', color:'var(--green)' };
+    if (score <= 55) return { stroke:null, status:'Estás en modo enfoque', color:'var(--teal)' };
+    if (score <= 75) return { stroke:'var(--gray)', status:'Equilibrio digital', color:'var(--gray)' };
+    return { stroke:'var(--pink)', status:'Cuidado con el brain rot', color:'var(--pink)' };
+  }
+
+  function renderInicio(){
+    const ring = $('#gauge-ring');
+    const circumference = 459;
+    ring.style.strokeDashoffset = circumference * (1 - state.score/100);
+    const { stroke, status, color } = gaugeColorAndStatus(state.score);
+    ring.setAttribute('stroke', stroke ? stroke.replace('var(--gray)','#A1A7B3').replace('var(--pink)','#FF6B8B') : 'url(#gaugeGrad)');
+    $('#score-val').textContent = state.score;
+    $('#gauge-status').textContent = status;
+    $('#gauge-status').style.color = color;
+
+    $('#time-earned-big').textContent = fmtMin(state.totalEarned);
+
+    const remaining = Math.max(0, state.rewardThreshold - state.progressEarned);
+    const claimable = state.progressEarned >= state.rewardThreshold;
+    if (claimable){
+      $('#reward-title').textContent = '¡Recompensa lista!';
+      $('#reward-sub').textContent = state.rewardMinutes + ' min de ocio digital para reclamar';
+    } else {
+      $('#reward-title').textContent = state.rewardMinutes + ' min de ocio digital';
+      $('#reward-sub').textContent = 'Faltan ' + remaining + ' min de actividad';
+    }
+    $('#reward-progress').style.width = Math.min(100, (state.progressEarned/state.rewardThreshold)*100) + '%';
+
+    renderHomeBarchart();
+  }
+
+  function renderHomeBarchart(){
+    const wrap = $('#home-barchart');
+    wrap.innerHTML = '';
+    const lastVal = Math.min(60, state.totalEarned);
+    const max = 60;
+    homeBarsBase.forEach((v, i) => {
+      const val = (i === homeBarsBase.length - 1) ? lastVal : v;
+      const bar = document.createElement('div');
+      bar.className = 'bar' + (i === homeBarsBase.length - 1 ? ' now' : '');
+      bar.style.height = Math.max(4, (val/max)*48) + 'px';
+      wrap.appendChild(bar);
+    });
+  }
+
+  function renderHabits(){
+    const list = $('#habit-list');
+    list.innerHTML = '';
+    state.habits.forEach(h => {
+      const item = document.createElement('div');
+      item.className = 'habit-item' + (h.done ? ' done' : '');
+      item.innerHTML = `
+        <div class="habit-check">${h.done ? '<i class="ti ti-check"></i>' : ''}</div>
+        <div style="flex:1;">
+          <div class="name">${h.label}</div>
+          <div class="reward">+${h.reward} min de ocio digital</div>
+        </div>`;
+      item.addEventListener('click', () => toggleHabit(h.id));
+      list.appendChild(item);
+    });
+    const done = state.habits.filter(h => h.done).length;
+    $('#habits-progress-text').textContent = done + ' / 4 hábitos completados hoy';
+  }
+
+  function addProgress(min, scoreDelta){
+    state.totalEarned += min;
+    state.progressEarned += min;
+    state.score = Math.max(10, state.score - scoreDelta);
+    renderInicio();
+    renderStats();
+    renderProfile();
+  }
+
+  function toggleHabit(id){
+    const h = state.habits.find(x => x.id === id);
+    const wasAllDone = state.habits.every(x => x.done);
+    if (!h.done){
+      h.done = true;
+      addProgress(h.reward, 1);
+      showToast('+' + h.reward + ' min — ' + h.label);
+      if (state.habits.every(x => x.done) && !wasAllDone){
+        setTimeout(() => { addProgress(10, 2); showToast('Bonus +10 min por completar todos los hábitos'); }, 700);
+      }
+    } else {
+      h.done = false;
+      state.totalEarned = Math.max(0, state.totalEarned - h.reward);
+      state.progressEarned = Math.max(0, state.progressEarned - h.reward);
+      renderInicio(); renderStats(); renderProfile();
+    }
+    renderHabits();
+  }
+
+  $('#checkin-challenge').addEventListener('click', () => {
+    if (state.challengeCheckedIn) return;
+    state.challengeCheckedIn = true;
+    addProgress(3, 1);
+    showToast('+3 min — check-in del reto grupal');
+    $('#checkin-challenge').innerHTML = '<i class="ti ti-check"></i> Check-in completado';
+    $('#checkin-challenge').disabled = true;
+  });
+
+  // FOCUS TIMER
+  function renderFocus(){
+    $('#focus-time').textContent = fmtClock(state.focus.remaining);
+    const ring = $('#focus-ring');
+    const circumference = 553;
+    const progress = 1 - (state.focus.remaining/state.focus.total);
+    ring.style.strokeDashoffset = circumference * (1 - progress);
+    $('#focus-start').innerHTML = state.focus.running
+      ? '<i class="ti ti-player-pause"></i> Pausar'
+      : '<i class="ti ti-player-play"></i> Iniciar';
+  }
+  $('#focus-start').addEventListener('click', () => {
+    if (state.focus.running){
+      state.focus.running = false; clearInterval(state.focus.interval); renderFocus(); return;
+    }
+    if (state.focus.remaining <= 0) return;
+    state.focus.running = true; renderFocus();
+    state.focus.interval = setInterval(() => {
+      state.focus.remaining -= 1;
+      if (state.focus.remaining <= 0){
+        clearInterval(state.focus.interval);
+        state.focus.running = false;
+        state.sessionsCount += 1;
+        addProgress(15, 3);
+        showToast('¡Sesión completa! +15 min de ocio digital');
+      }
+      renderFocus();
+    }, 1000);
+  });
+  $('#focus-reset').addEventListener('click', () => {
+    clearInterval(state.focus.interval);
+    state.focus.running = false; state.focus.remaining = state.focus.total;
+    renderFocus();
+  });
+
+  // STATS
+  function renderStats(){
+    $('#stat-prod-val').textContent = fmtMin(state.totalEarned);
+    $('#stat-prod-fill').style.width = Math.min(100, (state.totalEarned/100)*100) + '%';
+
+    const wrap = $('#week-chart');
+    wrap.innerHTML = '';
+    const max = 40;
+    weekBase.forEach((v, i) => {
+      const val = (i === weekBase.length - 1) ? state.totalEarned : v;
+      const bar = document.createElement('div');
+      bar.className = 'bar' + (i === weekBase.length - 1 ? ' today' : '');
+      bar.style.height = Math.max(6, Math.min(70, (val/max)*70)) + 'px';
+      wrap.appendChild(bar);
+    });
+  }
+
+  // PROFILE / LEVEL
+  const levels = [
+    { name:'Semilla', min:0 },
+    { name:'Brote', min:15 },
+    { name:'Planta joven', min:35 },
+    { name:'En flor', min:60 },
+  ];
+  function renderProfile(){
+    $('#stat-sessions').textContent = state.sessionsCount;
+    $('#stat-score').textContent = state.score;
+
+    let idx = 0;
+    for (let i = 0; i < levels.length; i++){ if (state.totalEarned >= levels[i].min) idx = i; }
+    const current = levels[idx];
+    const next = levels[idx+1];
+    $('#level-name').textContent = current.name;
+    $('#profile-level').textContent = 'Nivel: ' + current.name;
+    if (next){
+      const span = next.min - current.min;
+      const prog = state.totalEarned - current.min;
+      $('#level-progress').style.width = Math.min(100, (prog/span)*100) + '%';
+      $('#level-next').textContent = (next.min - state.totalEarned) + ' min para ' + next.name;
+    } else {
+      $('#level-progress').style.width = '100%';
+      $('#level-next').textContent = 'Nivel máximo';
+    }
+  }
+
+  // REWARD SHEET
+  function renderRewardSheet(){
+    const claimable = state.progressEarned >= state.rewardThreshold;
+    $('#reward-claim-card').style.display = claimable ? 'block' : 'none';
+    $('#reward-progress-card').style.display = claimable ? 'none' : 'block';
+    $('#reward-claim-amount').textContent = state.rewardMinutes;
+    const remaining = Math.max(0, state.rewardThreshold - state.progressEarned);
+    $('#sheet-progress-text').textContent = 'Faltan ' + remaining + ' min de actividad productiva';
+    $('#sheet-reward-progress').style.width = Math.min(100, (state.progressEarned/state.rewardThreshold)*100) + '%';
+
+    const lockstate = $('#social-lockstate');
+    const icon = $('#social-lock-icon');
+    const timeEl = $('#social-time');
+    const statusEl = $('#social-status');
+    const btn = $('#social-activate');
+    if (state.socialUnlocked){
+      lockstate.className = 'lock-state unlocked';
+      icon.innerHTML = '<i class="ti ti-lock-open"></i>';
+      timeEl.textContent = fmtClock(state.socialRemaining);
+      statusEl.textContent = 'Desbloqueado · disfrutá con conciencia';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ti ti-bolt"></i> Tiempo activo';
+    } else {
+      lockstate.className = 'lock-state locked';
+      icon.innerHTML = '<i class="ti ti-lock"></i>';
+      timeEl.textContent = '00:00';
+      statusEl.textContent = state.socialAvailable > 0
+        ? state.socialAvailable + ' min disponibles para activar'
+        : 'Sin tiempo disponible todavía';
+      btn.disabled = state.socialAvailable <= 0;
+      btn.innerHTML = '<i class="ti ti-bolt"></i> Activar tiempo en redes (' + state.socialAvailable + ' min)';
+    }
+  }
+
+  $('#reward-claim-btn').addEventListener('click', () => {
+    state.socialAvailable += state.rewardMinutes;
+    state.progressEarned -= state.rewardThreshold;
+    showToast('¡' + state.rewardMinutes + ' min de ocio digital acreditados!');
+    renderInicio();
+    renderRewardSheet();
+  });
+
+  $('#social-activate').addEventListener('click', () => {
+    if (state.socialAvailable <= 0 || state.socialUnlocked) return;
+    state.socialUnlocked = true;
+    state.socialRemaining = state.socialAvailable;
+    renderRewardSheet();
+    state.socialInterval = setInterval(() => {
+      state.socialRemaining -= 1;
+      state.socialAvailable -= 1;
+      if (state.socialRemaining <= 0){
+        clearInterval(state.socialInterval);
+        state.socialUnlocked = false;
+        showToast('Se bloqueó automáticamente. ¡Volvé a producir!');
+      }
+      renderRewardSheet();
+    }, 1000);
+  });
+
+  function openSheet(id, backdropId){
+    $('#' + id).classList.add('open');
+    $('#' + backdropId).classList.add('open');
+  }
+  function closeSheet(id, backdropId){
+    $('#' + id).classList.remove('open');
+    $('#' + backdropId).classList.remove('open');
+  }
+  $('#reward-card').addEventListener('click', () => { renderRewardSheet(); openSheet('reward-sheet','reward-backdrop'); });
+  $('#reward-close').addEventListener('click', () => closeSheet('reward-sheet','reward-backdrop'));
+  $('#reward-backdrop').addEventListener('click', () => closeSheet('reward-sheet','reward-backdrop'));
+
+  // PANIC SHEET
+  function renderPanic(){
+    const ring = $('#panic-ring');
+    const icon = $('#panic-icon');
+    const timeEl = $('#panic-time');
+    const activateBtn = $('#panic-activate');
+    const cancelBtn = $('#panic-cancel');
+    $$('#panic-durations .btn').forEach(b => {
+      b.classList.toggle('selected', Number(b.dataset.min) === state.panic.duration);
+      b.disabled = state.panic.active;
+    });
+    if (state.panic.active){
+      ring.classList.add('active');
+      icon.className = 'ti ti-lock';
+      timeEl.textContent = fmtClock(state.panic.remaining);
+      activateBtn.style.display = 'none';
+      cancelBtn.style.display = 'flex';
+    } else {
+      ring.classList.remove('active');
+      icon.className = 'ti ti-alert-triangle';
+      timeEl.textContent = '00:00';
+      activateBtn.style.display = 'flex';
+      cancelBtn.style.display = 'none';
+    }
+  }
+  $$('#panic-durations .btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if (state.panic.active) return;
+      state.panic.duration = Number(b.dataset.min);
+      renderPanic();
+    });
+  });
+  $('#panic-activate').addEventListener('click', () => {
+    state.panic.active = true;
+    state.panic.remaining = state.panic.duration;
+    renderPanic();
+    showToast('Modo emergencia activado: apps no esenciales bloqueadas');
+    state.panic.interval = setInterval(() => {
+      state.panic.remaining -= 1;
+      if (state.panic.remaining <= 0){
+        clearInterval(state.panic.interval);
+        state.panic.active = false;
+        showToast('El bloqueo de emergencia finalizó');
+      }
+      renderPanic();
+    }, 1000);
+  });
+  $('#panic-cancel').addEventListener('click', () => {
+    clearInterval(state.panic.interval);
+    state.panic.active = false;
+    renderPanic();
+  });
+  $('#panic-pill-home').addEventListener('click', () => { renderPanic(); openSheet('panic-sheet','panic-backdrop'); });
+  $('#panic-close').addEventListener('click', () => closeSheet('panic-sheet','panic-backdrop'));
+  $('#panic-backdrop').addEventListener('click', () => closeSheet('panic-sheet','panic-backdrop'));
+
+  // NAV
+  $$('.navitem').forEach(item => {
+    item.addEventListener('click', () => {
+      $$('.navitem').forEach(i => i.classList.remove('active'));
+      $$('.screen').forEach(s => s.classList.remove('active'));
+      $('#fab-foco').classList.remove('active');
+      item.classList.add('active');
+      $('#screen-' + item.dataset.screen).classList.add('active');
+    });
+  });
+  $('#fab-foco').addEventListener('click', () => {
+    $$('.navitem').forEach(i => i.classList.remove('active'));
+    $$('.screen').forEach(s => s.classList.remove('active'));
+    $('#fab-foco').classList.add('active');
+    $('#screen-foco').classList.add('active');
+  });
+
+  // RESET
+  $('#reset-demo').addEventListener('click', () => {
+    clearInterval(state.focus.interval);
+    clearInterval(state.socialInterval);
+    clearInterval(state.panic.interval);
+    Object.assign(state, {
+      score:42, totalEarned:0, progressEarned:0, socialAvailable:0,
+      socialUnlocked:false, socialRemaining:0, sessionsCount:0, challengeCheckedIn:false,
+    });
+    state.habits.forEach(h => h.done = false);
+    state.focus = { running:false, remaining:25, total:25, interval:null };
+    state.panic = { active:false, remaining:0, duration:30, interval:null };
+    $('#checkin-challenge').innerHTML = '<i class="ti ti-check"></i> Marcar check-in de hoy';
+    $('#checkin-challenge').disabled = false;
+    closeSheet('reward-sheet','reward-backdrop');
+    closeSheet('panic-sheet','panic-backdrop');
+    renderInicio(); renderHabits(); renderFocus(); renderStats(); renderProfile(); renderPanic();
+    showToast('Demo reiniciada');
+  });
+
+  // INIT
+  renderInicio();
+  renderHabits();
+  renderFocus();
+  renderStats();
+  renderProfile();
+  renderPanic();
+</script>
+</body>
+</html>
